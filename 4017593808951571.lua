@@ -10960,33 +10960,48 @@ task.spawn(function()
     end)
 end)
 Window:SelectTab(1)
-local ScreenGui = Instance.new("ScreenGui")
-local ImageButton = Instance.new("ImageButton")
-local UICorner = Instance.new("UICorner")
-local TweenService = game:GetService("TweenService")
+local ScreenGui = Instance.new("ScreenGui");
+local ImageButton = Instance.new("ImageButton");
+local UICorner = Instance.new("UICorner");
+local ParticleEmitter = Instance.new("ParticleEmitter");
+local TweenService = game:GetService("TweenService");
 
-ScreenGui.Parent = game.CoreGui
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.Parent = game.CoreGui;
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
 
-ImageButton.Parent = ScreenGui
-ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-ImageButton.BorderSizePixel = 0
-ImageButton.Position = UDim2.new(0.020833337, 0, 0.1052890813, 0)
-ImageButton.Size = UDim2.new(0, 59, 0, 59)
-ImageButton.Draggable = true
-ImageButton.Active = true
-ImageButton.Image = "rbxassetid://74046154909636"
+ImageButton.Parent = ScreenGui;
+ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
+ImageButton.BorderSizePixel = 0;
+-- Sếp nên chỉnh lại Position cho chuẩn UI hơn
+ImageButton.Position = UDim2.new(0.02, 0, 0.1, 0); 
+ImageButton.Size = UDim2.new(0, 59, 0, 59);
+ImageButton.Draggable = true; -- Tạm để nếu sếp lười viết code drag mới
+ImageButton.Image = "rbxassetid://74046154909636";
+ImageButton.Active = true; -- Quan trọng để draggable hoạt động
 
-UICorner.Parent = ImageButton
-UICorner.CornerRadius = UDim.new(0, 12)
+UICorner.Parent = ImageButton;
+UICorner.CornerRadius = UDim.new(0, 12);
 
-local rotateTween = TweenService:Create(
-    ImageButton,
-    TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-    { Rotation = ImageButton.Rotation + 360 }
-)
+-- Cài đặt Particle cho đẹp
+ParticleEmitter.Parent = ImageButton;
+ParticleEmitter.LightEmission = 1;
+ParticleEmitter.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.1),NumberSequenceKeypoint.new(1, 0)});
+ParticleEmitter.Lifetime = NumberRange.new(0.5, 1);
+ParticleEmitter.Rate = 0;
+ParticleEmitter.Enabled = true; -- Phải để true mới Emit được
+ParticleEmitter.Speed = NumberRange.new(5, 10);
+ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255));
 
+-- Click Function
 ImageButton.MouseButton1Down:Connect(function()
-    rotateTween:Play()
-    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
-end)
+    -- Xoay nút khi bấm
+    ImageButton.Rotation = 0 -- Reset xoay
+    local tween = TweenService:Create(ImageButton, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Rotation=360})
+    tween:Play()
+
+    -- Phun hạt cho xịn
+    ParticleEmitter:Emit(15)
+
+    -- Gửi phím End
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game);
+end);
