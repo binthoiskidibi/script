@@ -1,3 +1,79 @@
+
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+
+-- API Configuration
+local API_URL = "https://whitelist-api-production-dd11.up.railway.app"
+local maxRetries = 3
+local retryDelay = 2
+
+local function getHWID()
+    return game:GetService("RbxAnalyticsService"):GetClientId()
+end
+
+local function verifyKey(key)
+    local hwid = getHWID()
+    local attempt = 0
+    -- Tự động nhận diện hàm request của Executor
+    local requestFunc = (syn and syn.request) or (http and http.request) or request or http_request
+
+    while attempt < maxRetries do 
+        attempt = attempt + 1
+        local success, result = pcall(function()
+            local response = requestFunc({
+                Url = API_URL .. "/api/verify",
+                Method = "POST",
+                Headers = { ["Content-Type"] = "application/json" },
+                Body = HttpService:JSONEncode({
+                    key = key,
+                    hwid = hwid
+                })
+            })
+            
+            if response.StatusCode == 200 then
+                return HttpService:JSONDecode(response.Body)
+            elseif response.StatusCode == 503 then
+                error("Service unavailable")
+            elseif response.StatusCode == 504 then
+                error("Gateway timeout")
+            else
+                error("Server error: " .. response.StatusCode)
+            end
+        end)
+        
+        if success and result then
+            if type(result) == "table" then
+                return result.success, result.message or "Unknown error"
+            end
+        else
+            print(" Attempt " .. attempt .. " failed: " .. tostring(result))
+            if attempt < maxRetries then
+                print(" Retrying in " .. retryDelay .. " seconds...")
+                task.wait(retryDelay) -- Sử dụng task.wait tốt hơn wait
+            end
+        end
+    end -- Kết thúc vòng lặp while
+    
+    return false, "Connection timeout - Server not responding after 3 attempts"
+end
+
+-- Kiểm tra key trước khi chạy
+local key = getgenv().CheckKey
+if not key or key == "" then
+    Players.LocalPlayer:Kick(" NO KEY PROVIDED\n\nPlease set your key:\ngetgenv().CheckKey = 'YOUR-KEY'")
+    return false
+end
+
+print(" Verifying key: " .. key)
+print(" HWID: " .. getHWID())
+
+-- Xác thực key
+local success, message = verifyKey(key)
+
+if success then
+    print(" Key verified successfully!")
+               
 do
     ply = game.Players
     plr = ply.LocalPlayer
@@ -37,7 +113,7 @@ until start
 	World1 = game.PlaceId == 85211729168715
     World2 = game.PlaceId == 79091703265657
     World3 = game.PlaceId == 100117331123089
-	World1 = game.PlaceId == 2753915549
+	World1 = game.PlaceId == 2753915549 
 	World2 = game.PlaceId == 4442272183
 	World3 = game.PlaceId == 7449423635
 
@@ -4432,7 +4508,7 @@ spawn(function()
         end)
     end
 end)
-local StatsUpg = Tabs.Settings:AddToggle("StatsUpg", {
+StatsUpg = Tabs.Settings:AddToggle("StatsUpg", {
     Title = "Auto Gun",
     Description = "",
     Default = false
@@ -4449,7 +4525,7 @@ spawn(function()
         end)
     end
 end)
-local StatsUpg = Tabs.Settings:AddToggle("StatsUpg", {
+StatsUpg = Tabs.Settings:AddToggle("StatsUpg", {
     Title = "Auto Blox Fruit",
     Description = "",
     Default = false
@@ -4466,7 +4542,7 @@ spawn(function()
         end)
     end
 end)
-local StatsUpg = Tabs.Settings:AddToggle("StatsUpg", {
+StatsUpg = Tabs.Settings:AddToggle("StatsUpg", {
     Title = "Auto Defense",
     Description = "",
     Default = false
@@ -4485,7 +4561,7 @@ spawn(function()
 end)
 
 Tabs.Melee:AddSection("Fighting Melee Styles")
-local SuperHuman = Tabs.Melee:AddToggle("SuperHuman", {
+SuperHuman = Tabs.Melee:AddToggle("SuperHuman", {
     Title = "Auto Superhuman",
     Description = "",
     Default = false
@@ -4544,7 +4620,7 @@ spawn(function()
         end)
     end
 end)
-local DeathStep = Tabs.Melee:AddToggle("DeathStep", {
+DeathStep = Tabs.Melee:AddToggle("DeathStep", {
     Title = "Auto DeathStep",
     Description = "",
     Default = false
@@ -4596,7 +4672,7 @@ spawn(function()
         end
     end
 end)
-local SharkManV2 = Tabs.Melee:AddToggle("SharkManV2", {
+SharkManV2 = Tabs.Melee:AddToggle("SharkManV2", {
     Title = "Auto Sharkman Karate",
     Description = "",
     Default = false
@@ -4648,7 +4724,7 @@ spawn(function()
         end
     end
 end)
-local ElectricClaw = Tabs.Melee:AddToggle("ElectricClaw", {
+ElectricClaw = Tabs.Melee:AddToggle("ElectricClaw", {
     Title = "Auto ElectricClaw",
     Description = "",
     Default = false
@@ -4681,7 +4757,7 @@ spawn(function()
         end
     end
 end)
-local DragonTalon = Tabs.Melee:AddToggle("DragonTalon", {
+DragonTalon = Tabs.Melee:AddToggle("DragonTalon", {
     Title = "Auto DragonTalon",
     Description = "",
     Default = false
@@ -4712,7 +4788,7 @@ spawn(function()
         end
     end
 end)
-local Godhuman = Tabs.Melee:AddToggle("Godhuman", {
+Godhuman = Tabs.Melee:AddToggle("Godhuman", {
     Title = "Auto Godhuman",
     Description = "",
     Default = false
@@ -4763,7 +4839,7 @@ spawn(function()
         end)
     end
 end)
-local SanguineArt = Tabs.Melee:AddToggle("SanguineArt", {
+SanguineArt = Tabs.Melee:AddToggle("SanguineArt", {
     Title = "Auto SanguineArt",
     Description = "",
     Default = false
@@ -4841,7 +4917,7 @@ spawn(function()
         end
     end
 end)
-local Q = Tabs.Quests:AddToggle("Q", {
+Q = Tabs.Quests:AddToggle("Q", {
     Title = "Auto Elite Quest",
     Description = "",
     Default = false
@@ -10960,48 +11036,137 @@ task.spawn(function()
     end)
 end)
 Window:SelectTab(1)
-local ScreenGui = Instance.new("ScreenGui");
-local ImageButton = Instance.new("ImageButton");
-local UICorner = Instance.new("UICorner");
-local ParticleEmitter = Instance.new("ParticleEmitter");
-local TweenService = game:GetService("TweenService");
+local ScreenGui = Instance.new("ScreenGui")
+local ImageButton = Instance.new("ImageButton")
+local UICorner = Instance.new("UICorner")
+local ParticleEmitter = Instance.new("ParticleEmitter")
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
-ScreenGui.Parent = game.CoreGui;
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling;
+ScreenGui.Name = "MenuButton"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-ImageButton.Parent = ScreenGui;
-ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0);
-ImageButton.BorderSizePixel = 0;
--- Sếp nên chỉnh lại Position cho chuẩn UI hơn
-ImageButton.Position = UDim2.new(0.02, 0, 0.1, 0); 
-ImageButton.Size = UDim2.new(0, 59, 0, 59);
-ImageButton.Draggable = true; -- Tạm để nếu sếp lười viết code drag mới
-ImageButton.Image = "rbxassetid://74046154909636";
-ImageButton.Active = true; -- Quan trọng để draggable hoạt động
+ImageButton.Parent = ScreenGui
+ImageButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+ImageButton.BorderSizePixel = 0
+ImageButton.Position = UDim2.new(0.02, 0, 0.1, 0)
+ImageButton.Size = UDim2.new(0, 59, 0, 59)
+ImageButton.Image = "http://www.roblox.com/asset/?id=74046154909636"  
 
-UICorner.Parent = ImageButton;
-UICorner.CornerRadius = UDim.new(0, 12);
+UICorner.Parent = ImageButton
+UICorner.CornerRadius = UDim.new(0, 12)
 
--- Cài đặt Particle cho đẹp
-ParticleEmitter.Parent = ImageButton;
-ParticleEmitter.LightEmission = 1;
-ParticleEmitter.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.1),NumberSequenceKeypoint.new(1, 0)});
-ParticleEmitter.Lifetime = NumberRange.new(0.5, 1);
-ParticleEmitter.Rate = 0;
-ParticleEmitter.Enabled = true; -- Phải để true mới Emit được
-ParticleEmitter.Speed = NumberRange.new(5, 10);
-ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255));
+ParticleEmitter.Parent = ImageButton
+ParticleEmitter.Texture = "http://www.roblox.com/asset/?id=5860841663"  
+ParticleEmitter.LightEmission = 1
+ParticleEmitter.Size = NumberSequence.new{
+    NumberSequenceKeypoint.new(0, 0.1),
+    NumberSequenceKeypoint.new(0.5, 0.3),
+    NumberSequenceKeypoint.new(1, 0)
+}
+ParticleEmitter.Lifetime = NumberRange.new(0.5, 1)
+ParticleEmitter.Rate = 50  
+ParticleEmitter.Speed = NumberRange.new(5, 10)
+ParticleEmitter.Color = ColorSequence.new(Color3.fromRGB(255, 85, 255), Color3.fromRGB(85, 255, 255))
 
--- Click Function
+
+local spinInfo = TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut, -1, true)
+local rotateTween = TweenService:Create(ImageButton, spinInfo, {Rotation = 360})
+rotateTween:Play()
+
+
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    ImageButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+ImageButton.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = ImageButton.Position
+    end
+end)
+
+ImageButton.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+        updateInput(input)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+
 ImageButton.MouseButton1Down:Connect(function()
-    -- Xoay nút khi bấm
-    ImageButton.Rotation = 0 -- Reset xoay
-    local tween = TweenService:Create(ImageButton, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Rotation=360})
-    tween:Play()
-
-    -- Phun hạt cho xịn
-    ParticleEmitter:Emit(15)
-
-    -- Gửi phím End
-    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game);
-end);
+    ParticleEmitter.Rate = 200  
+    task.wait(0.2)
+    ParticleEmitter.Rate = 50
+    
+    game:GetService("VirtualInputManager"):SendKeyEvent(true, Enum.KeyCode.End, false, game)
+    game:GetService("VirtualInputManager"):SendKeyEvent(false, Enum.KeyCode.End, false, game)
+end)
+    return true
+else
+    print(" Key verification failed: " .. message)
+    warn(" Reason: " .. message)
+    
+    -- Xử lý các loại lỗi khác nhau
+    local lowerMsg = message:lower()
+    
+    if lowerMsg:find("timeout") or lowerMsg:find("connection") or lowerMsg:find("server not responding") then
+        -- Lỗi kết nối - không kick
+        warn(" Connection issue detected. Please try again.")
+        warn(" If issue persists, contact support.")
+    elseif lowerMsg:find("service unavailable") or lowerMsg:find("database not ready") then
+        -- Database chưa sẵn sàng
+        Players.LocalPlayer:Kick(" SERVICE TEMPORARILY UNAVAILABLE\n\nThe verification service is starting up.\n\nPlease wait 30 seconds and try again.")
+    elseif lowerMsg:find("hwid mismatch") or lowerMsg:find("another device") or lowerMsg:find("registered to") then
+        -- HWID sai - kick với thông báo rõ ràng
+        Players.LocalPlayer:Kick(" HWID VERIFICATION FAILED!\n\n" .. 
+            "This key is registered to another device.\n\n" ..
+            "To fix this:\n" ..
+            "1. Join Discord server\n" ..
+            "2. Use /resethwid command\n" ..
+            "3. Try again\n\n" ..
+            "Error: " .. message)
+    elseif lowerMsg:find("not redeemed") then
+        -- Key chưa redeem
+        Players.LocalPlayer:Kick(" KEY NOT ACTIVATED!\n\n" ..
+            "Please redeem this key first:\n" ..
+            "1. Join Discord server\n" ..
+            "2. Use /redeem <key> command\n" ..
+            "3. Try again")
+    elseif lowerMsg:find("blacklist") then
+        -- Key bị blacklist
+        Players.LocalPlayer:Kick(" KEY BLACKLISTED!\n\n" ..
+            "This key has been banned.\n" ..
+            "Contact support for more information.")
+    elseif lowerMsg:find("expired") then
+        -- Key hết hạn
+        Players.LocalPlayer:Kick(" KEY EXPIRED!\n\n" ..
+            "Your key subscription has ended.\n" ..
+            "Please purchase a new key.")
+    elseif lowerMsg:find("invalid") or lowerMsg:find("does not exist") then
+        -- Key không hợp lệ
+        Players.LocalPlayer:Kick(" INVALID KEY!\n\n" ..
+            "The key you entered does not exist.\n" ..
+            "Please check and try again.")
+    else
+        -- Lỗi khác
+        Players.LocalPlayer:Kick(" VERIFICATION FAILED!\n\n" ..
+            "Reason: " .. message .. "\n\n" ..
+            "Contact support if issue persists.")
+    end
+    
+    return false
+end
